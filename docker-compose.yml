@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  app:
+    container_name: golang
+    environment:
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DB=${DB_NAME}
+      - MYSQL_HOST=${DB_HOST}
+      - MYSQL_PORT=${DB_PORT}
+    tty: true
+    build: .
+    ports:
+      - 1324:1324
+    restart: on-failure
+    volumes:
+      - .:/app
+    depends_on:
+      - mysql
+    networks:
+      - learning
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql_golang
+    environment:
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DB=${DB_NAME}
+      - MYSQL_HOST=${DB_HOST}
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./mysql_data:/var/lib/mysql/data
+    networks:
+      - learning
+  volumes:
+    mysql_data:
+
+networks:
+  learning:
+    driver: bridge
