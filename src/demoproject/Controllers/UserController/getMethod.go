@@ -10,7 +10,7 @@ import (
 )
 
 func Index(ctx echo.Context) (err error) {
-	users := &[]m.User{}
+	users := &[]m.Tournament{}
 
 	results := controller.Connection.Find(users)
 

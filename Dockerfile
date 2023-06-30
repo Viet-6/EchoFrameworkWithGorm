@@ -9,31 +9,30 @@ RUN apk update && apk add --no-cache git && apk add --no-cache bash && apk add b
 
 # Setup working directory
 RUN mkdir /app
-WORKDIR /app
+WORKDIR /app/src/demoproject/
 
 # Copy the source into working directory inside Docker
 COPY . .
-COPY .env
+COPY .env .
 
-# Run all the depedency
-RUN go get -d -v ./...
+RUN cd ./src/demoproject/ \
+    && go get -d -v ./... \
+    && go install -v ./...\
+    && go get -v github.com/githubnemo/CompileDaemon \
+    && go install -v github.com/githubnemo/CompileDaemon
 
-# Install the package
-RUN go install -v ./...
-
+ENV PATH="${PATH}:${GOPATH}/bin"
+ENV GO111MODULE=on
 # enable hot-reload
 # Setup hot-reload for dev stage
-# RUN go get github.com/githubnemo/CompileDaemon
-# RUN go get -v golang.org/x/tools/gopls
+CMD CompileDaemon --build="go build -buildvcs=false -a -installsuffix cgo -o main ." --command=./main
 
-# ENTRYPOINT CompileDaemon --build="go build -a -installsuffix cgo -o main ." --command=./main
+# Uncomment below code if dont use hot-reload
+# # Build the Go app
+# RUN go build -o /build
 
-# Comment below code if use hot-reload
-# Build the Go app
-RUN go build -o /build
+# # Expose port
+# EXPOSE 1324
 
-# Expose port
-EXPOSE 1324
-
-# RUN the executable
-CMD ["/build"]
+# # RUN the executable
+# CMD ["/build"]
